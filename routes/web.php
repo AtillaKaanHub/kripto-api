@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// Kullanıcılar /kripto adresine girdiğinde 'kripto' adındaki Blade dosyasını göster
+Route::get('/kripto', function () {
+    return view('kripto');
 });
