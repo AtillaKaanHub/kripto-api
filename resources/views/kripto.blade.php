@@ -1,31 +1,42 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Kripto Fiyat Takip</title>
- <script src="https://cdn.tailwindcss.com"></script>
+    <title>Kripto Canlı Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Canlı yanıp sönen yeşil nokta efekti */
+        .live-dot {
+            height: 10px; width: 10px; background-color: #22c55e;
+            border-radius: 50%; display: inline-block;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gray-900 text-white min-h-screen p-8">
 
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">Anlık Kripto Takip</h1>
-        
-        <div class="flex gap-2 mb-6">
-     <input type="text" id="coinInput" placeholder="Örn: ETH, BTC, SOL" class="w-full border border-gray-300 rounded px-4 py-2 uppercase outline-none focus:border-blue-500">
-            <button onclick="fiyatGetir()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Ara</button>
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-bold text-blue-400">Kripto Canlı Panel</h1>
+                <p class="text-gray-400">Veriler otomatik olarak güncellenir <span class="live-dot ml-1"></span></p>
+            </div>
+            
+            <div class="flex gap-2">
+                <input type="text" id="coinInput" placeholder="BTC, ETH..." class="bg-gray-800 border border-gray-700 rounded px-4 py-2 uppercase outline-none focus:border-blue-500 text-white">
+                <button onclick="fiyatGetir()" class="bg-blue-600 px-6 py-2 rounded hover:bg-blue-700 transition">Hızlı Bak</button>
+            </div>
         </div>
 
-        <div id="sonucAlani" class="hidden text-center mb-6 p-4 border rounded bg-gray-50">
-         <h2 id="coinIsmi" class="text-xl font-bold text-gray-700"></h2>
-            <p id="coinFiyati" class="text-3xl font-black text-green-600 mt-2"></p>
-             <p id="hataMesaji" class="text-red-500 font-semibold"></p>
-        </div>
+        <div id="dashboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            </div>
 
-        <div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">Son Fiyat Sorgulamaları</h3>
-            <ul id="gecmisListesi" class="text-sm text-gray-600 space-y-1">
-              <li class="text-gray-400 italic">Henüz bir arama yapılmadı...</li>
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <h3 id="gecmisBaslik" class="text-xl font-semibold mb-4 text-gray-300 border-b border-gray-700 pb-2 text-center">İşlem Geçmişi</h3>
+            <ul id="gecmisListesi" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <li class="text-gray-500 italic col-span-2 text-center">İncelemek istediğiniz coini aratın veya kartına tıklayın.</li>
             </ul>
         </div>
     </div>
