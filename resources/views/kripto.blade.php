@@ -41,67 +41,83 @@
         </div>
     </div>
 
-    <script>
-        // Butona basıldığında çalışacak ana fonksiyon
-        async function fiyatGetir() {
-            const coin = document.getElementById('coinInput').value;
-            const sonucAlani = document.getElementById('sonucAlani');
-           const coinIsmi = document.getElementById('coinIsmi');
-            const coinFiyati = document.getElementById('coinFiyati');
-            const hataMesaji = document.getElementById('hataMesaji');
-           const gecmisListesi = document.getElementById('gecmisListesi');
+<script>
+        // Panelde takip etmek istediğimiz varsayılan coinler
+        const takipListesi = ['BTC', 'ETH', 'SOL', 'BNB'];
 
-            // Eğer kutu boşsa uyarı ver
-            if(!coin) {
-                alert("Lütfen bir coin ismi girin!");
-                return;
-            }
+        // DASHBOARD U GÜNCELLEYEN FONKSİYON
+        async function dashboardGuncelle() {
+         const grid = document.getElementById('dashboardGrid');
+            
+         // Her coin için API ye istek atar
+         for (const coin of takipListesi) {
+          try {
+         const response = await fetch(`/api/fiyat/${coin}`);
+         const data = await response.json();
 
-            // Arayüzü sıfırla ve görünür yap
-            sonucAlani.classList.remove('hidden');
-            coinIsmi.innerText = "Yükleniyor...";
-            coinFiyati.innerText = "";
-            hataMesaji.innerText = "";
-
-            try {
-                //  Kendi API'mize FİYAT İÇİN İstek Atıyoruz (Sayfa yenilenmez!)
-                const fiyatYanit = await fetch(`/api/fiyat/${coin}`);
-                const fiyatVerisi = await fiyatYanit.json();
-
-                if(fiyatVerisi.status === 'success') {
-                    coinIsmi.innerText = fiyatVerisi.coin;
-                    coinFiyati.innerText = "$" + fiyatVerisi.current_price;
-                } else {
-                    coinIsmi.innerText = "";
-                    hataMesaji.innerText = fiyatVerisi.message; // 404 hatasını ekrana bas
+             if(data.status === 'success') {
+                 // Eğer kart zaten varsa sadece fiyatı güncelle, yoksa yeni kart oluştur
+                 let card = document.getElementById(`card-${coin}`);
+                  if(!card) {
+                   grid.innerHTML += `
+                    <div id="card-${coin}" class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition cursor-pointer" onclick="gecmisGetir('${coin}')">
+                  <div class="flex justify-between items-center mb-4">
+                   <span class="text-2xl font-bold">${coin}</span>
+                   <span class="text-xs bg-gray-700 px-2 py-1 rounded text-gray-300">USD</span>
+                    </div>
+                 <div id="price-${coin}" class="text-3xl font-black text-green-400">$${data.current_price}</div>
+                      <div class="text-xs text-gray-500 mt-2">Şimdi güncellendi</div>
+                     </div>`;
+                        } else {
+                            document.getElementById(`price-${coin}`).innerText = `$${data.current_price}`;
+                        }
+                    }
+               } catch (error) {
+                  console.error("Dashboard hatası:", error);
                 }
-
-                // Kendi API'mize GEÇMİŞ İÇİN İstek Atıyoruz
-                const gecmisYanit = await fetch(`/api/gecmis/${coin}`);
-                const gecmisVerisi = await gecmisYanit.json();
-
-                gecmisListesi.innerHTML = ""; // Listeyi temizle
-
-                if(gecmisVerisi.status === 'success') {
-                    // Gelen geçmiş verilerini döngüyle listeye ekle
-                    gecmisVerisi.data.forEach(item => {
-                        // Tarihi biraz daha okunabilir formata çevirelim
-                        let tarih = new Date(item.created_at).toLocaleTimeString('tr-TR');
-                        gecmisListesi.innerHTML += `<li class="flex justify-between border-b border-gray-100 py-1">
-                            <span>${item.coin}</span>
-                           <span class="font-semibold text-gray-800">$${item.price}</span>
-                            <span class="text-xs text-gray-400">${tarih}</span>
-                        </li>`;
-                    });
-                } else {
-                    gecmisListesi.innerHTML = `<li class="text-gray-400 italic">Geçmiş kayıt bulunamadı.</li>`;
-                }
-
-            } catch (error) {
-                coinIsmi.innerText = "";
-                hataMesaji.innerText = "Sunucu ile bağlantı kurulamadı.";
             }
         }
+
+        // GEÇMİŞİ GETİREN FONKSİYON
+        async function gecmisGetir(coin) {
+            document.getElementById('gecmisBaslik').innerText = `${coin} Son Kayıtlar`;
+           const list = document.getElementById('gecmisListesi');
+            
+            try {
+                const response = await fetch(`/api/gecmis/${coin}`);
+                 const resData = await response.json();
+
+                list.innerHTML = "";
+                 if(resData.status === 'success') {
+                     resData.data.forEach(item => {
+                        let saat = new Date(item.created_at).toLocaleTimeString('tr-TR');
+                        list.innerHTML += `
+                            <li class="flex justify-between bg-gray-900 p-3 rounded border border-gray-800">
+                            <span class="text-blue-400 font-bold">${item.coin}</span>
+                              <span class="font-mono text-green-400">$${item.price}</span>
+                             <span class="text-xs text-gray-500">${saat}</span>
+                            </li>`;
+                    });
+                }
+            } catch (e) { console.log(e); }
+        }
+
+        // Sayfa açıldığında arama kutusu için fonksiyonu bağlar
+          function fiyatGetir() {
+            const c = document.getElementById('coinInput').value.toUpperCase();
+            if(c) {
+                gecmisGetir(c);
+                // Eğer listede yoksa geçici olarak ekleyebilirsin veya sadece geçmişi görür
+            }
+        }
+
+        // CANLI TAKİP MOTORU 
+        // Sayfa ilk açıldığında hemen çalıştır
+        dashboardGuncelle();
+
+        // Her 5 saniyede bir dashboardGuncelle fonksiyonunu otomatik çalıştır
+        setInterval(dashboardGuncelle, 5000);
+
     </script>
 </body>
 </html>
