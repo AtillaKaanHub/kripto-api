@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kripto Canlı Dashboard</title>
 
+    
     <!-- Chart.js Kütüphanesini Sayfaya Ekleme -->
         <script src="https://cdn.tailwindcss.com"></script>
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <!-- vite dahil edilimi -->
+        @vite(['resources/js/app.js'])
 
         <!-- karanlık mod -->
     <script>
@@ -16,7 +20,7 @@
             darkMode: 'class'
         }
     </script>
-
+ 
     <style>
         /* Canlı yanıp sönen yeşil nokta efekti */
         .live-dot {
@@ -89,15 +93,36 @@ document.getElementById('ayEvresi').innerText = "Güncel Ay Evresi: " + getMoonP
                  // Eğer kart zaten varsa sadece fiyatı güncelle, yoksa yeni kart oluştur
                  let card = document.getElementById(`card-${coin}`);
                   if(!card) {
-                  grid.innerHTML += `
-    <div id="card-${coin}" class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition hover:border-blue-500 cursor-pointer" onclick="gecmisGetir('${coin}')">
-        <div class="flex justify-between items-center mb-4">
-            <span class="text-2xl font-bold text-gray-800 dark:text-white">${coin}</span>
-            <span class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-300">USD</span>
+                 grid.innerHTML += `
+<div id="card-${coin}" 
+     class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group" 
+     onclick="gecmisGetir('${coin}')">
+
+    <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 dark:bg-blue-400/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+
+    <div class="flex justify-between items-start mb-4 relative z-10">
+        <div>
+            <span class="text-2xl font-black text-gray-800 dark:text-white tracking-tight">${coin}</span>
+            <span class="ml-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md text-gray-500 dark:text-gray-300">/USDT</span>
         </div>
-        <div id="price-${coin}" class="text-3xl font-black text-green-500 dark:text-green-400">$${data.current_price}</div>
-        <div class="text-xs text-gray-500 dark:text-gray-400 mt-2">Şimdi güncellendi</div>
-    </div>`;
+
+        <div class="p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+            </svg>
+        </div>
+    </div>
+
+    <div id="price-${coin}" class="text-3xl font-black text-gray-800 dark:text-white relative z-10 transition-colors duration-300">
+        $${data.current_price}
+    </div>
+
+    <div class="flex items-center mt-3 text-xs text-gray-400 dark:text-gray-500 font-medium relative z-10">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse mr-2"></span>
+        Canlı Takip
+    </div>
+</div>`;
                         } else {
                             document.getElementById(`price-${coin}`).innerText = `$${data.current_price}`;
                         }
@@ -193,12 +218,10 @@ async function gecmisGetir(coin) {
             }
         }
 
+        
         // CANLI TAKİP MOTORU 
-        // Sayfa ilk açıldığında hemen çalıştır
         dashboardGuncelle();
 
-        // Her 5 saniyede bir dashboardGuncelle fonksiyonunu otomatik çalıştır
-        setInterval(dashboardGuncelle, 5000);
 
 
         // O anki tarihe göre Ay'ın evresini hesaplayan fonksiyon
@@ -263,5 +286,90 @@ temaKontrolEt();
 
 
     </script>
+
+<script type="module">
+    // Önceki fiyatları tut
+    const oncekiFiyatlar = {};
+
+    setTimeout(() => {
+        if (window.Echo) {
+
+            console.log("Echo dinleniyor...");
+
+            window.Echo.channel('kripto-kanal')
+            .listen('.fiyat.guncellendi', (e) => {
+
+                const priceElement = document.getElementById(`price-${e.coin}`);
+                const cardElement = document.getElementById(`card-${e.coin}`);
+
+                if (priceElement && cardElement) {
+
+                    const yeniFiyat = parseFloat(e.fiyat);
+                    const eskiFiyat = oncekiFiyatlar[e.coin] ?? yeniFiyat;
+
+                    // Fiyatı güncelle
+                    priceElement.innerHTML = `$${yeniFiyat}`;
+
+                    // TÜM eski efektleri temizle
+                    cardElement.classList.remove(
+                        'border-green-500',
+                        'border-red-500',
+                        'shadow-lg',
+                        'shadow-green-500/30',
+                        'shadow-red-500/30'
+                    );
+
+                    priceElement.classList.remove(
+                        'text-green-500',
+                        'text-red-500'
+                    );
+
+                    //  YÜKSELİŞ
+                    if (yeniFiyat > eskiFiyat) {
+
+                        cardElement.classList.add(
+                            'border-green-500',
+                            'shadow-lg',
+                            'shadow-green-500/30'
+                        );
+
+                        priceElement.classList.add('text-green-500');
+
+                    }
+
+                    //  DÜŞÜŞ
+                    else if (yeniFiyat < eskiFiyat) {
+
+                        cardElement.classList.add(
+                            'border-red-500',
+                            'shadow-lg',
+                            'shadow-red-500/30'
+                        );
+
+                        priceElement.classList.add('text-red-500');
+                    }
+
+                    // Efekti kısa süre sonra kaldır (renk kalır)
+                    setTimeout(() => {
+                        cardElement.classList.remove(
+                            'border-green-500',
+                            'border-red-500',
+                            'shadow-lg',
+                            'shadow-green-500/30',
+                            'shadow-red-500/30'
+                        );
+                    }, 500);
+
+                    // Yeni fiyatı kaydet
+                    oncekiFiyatlar[e.coin] = yeniFiyat;
+                }
+            });
+
+        } else {
+            console.error("Echo yüklenmedi!");
+        }
+    }, 1000);
+</script>
+
 </body>
 </html>
