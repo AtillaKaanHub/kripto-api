@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\CryptoHistory; 
 
+
 class CryptoController extends Controller
 {
       // Rota'daki {coin} parametresi doğrudan bu fonksiyona değişken olarak gelir

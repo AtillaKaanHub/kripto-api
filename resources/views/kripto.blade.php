@@ -74,7 +74,7 @@
 
 <script>
         // Panelde takip etmek istediğimiz varsayılan coinler
-        const takipListesi = ['BTC', 'ETH', 'SOL', 'BNB'];
+        const takipListesi = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'];
 
         // Sayfa yüklendiğinde Ay evresini hesapla ve ekrana yaz
 document.getElementById('ayEvresi').innerText = "Güncel Ay Evresi: " + getMoonPhaseEmoji();
@@ -222,8 +222,6 @@ async function gecmisGetir(coin) {
         // CANLI TAKİP MOTORU 
         dashboardGuncelle();
 
-
-
         // O anki tarihe göre Ay'ın evresini hesaplayan fonksiyon
 function getMoonPhaseEmoji() {
     const bugun = new Date();
@@ -258,15 +256,15 @@ function temaDegistir() {
     
     // Kullanıcının tercihini tarayıcıya kaydet 
     if(html.classList.contains('dark')) {
-        localStorage.setItem('tema', 'karanlik');
+        localStorage.setItem('tema', 'karanlik'); //hafızaya veriyi kaydediyor
     } else {
         localStorage.setItem('tema', 'aydinlik');
     }
 }
 
-// Sayfa ilk açıldığında çalışır, Tarayıcı hafızasında tema var mı diye bakar
+// Sayfa ilk açıldığında çalışır, Tarayıcı hafızasında tema var mı diye veriyi okur
 function temaKontrolEt() {
-    const kayitliTema = localStorage.getItem('tema');
+    const kayitliTema = localStorage.getItem('tema'); //hafızadaki veriyi okuyor
     
     if (kayitliTema === 'karanlik') {
         document.documentElement.classList.add('dark');

@@ -20,7 +20,7 @@ class KriptoBot extends Command
         $this->info("Durdurmak için klavyeden CTRL + C tuşlarına basabilirsiniz.");
 
         // Takip edeceğimiz coinlerin listesi 
-        $coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'AVAXUSDT'];
+        $coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'AVAXUSDT', 'XRPUSDT'];
 
         // Sonsuz döngü: Bot çalıştığı sürece hiç durmadan devam edecek
         while (true) {
