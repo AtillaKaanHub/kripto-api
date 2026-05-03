@@ -16,12 +16,14 @@ class KriptoFiyatGuncellendi implements ShouldBroadcast
     // JavaScript e göndereceğimiz veriler (Public olmak zorundadır)
     public $coin;
     public $fiyat;
+    public $yuzde;
 
     // Olay tetiklendiğinde içine verileri koyduğumuz yer
-    public function __construct($coin, $fiyat)
+    public function __construct($coin, $fiyat, $yuzde)
     {
         $this->coin = $coin;
         $this->fiyat = $fiyat;
+        $this->yuzde = $yuzde;
     }
 
     // Verinin HANGİ kanaldan fırlatılacağını belirliyoruz

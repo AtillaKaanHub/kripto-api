@@ -16,35 +16,35 @@ class KriptoBot extends Command
 
     public function handle()
     {
-        $this->info("Kripto Bot çalıştırıldı! Fiyatlar WebSocket tüneline pompalanıyor...");
-        $this->info("Durdurmak için klavyeden CTRL + C tuşlarına basabilirsiniz.");
+     $this->info("Kripto Bot çalıştırıldı! Fiyatlar WebSocket tüneline pompalanıyor...");
+    $this->info("Durdurmak için klavyeden CTRL + C tuşlarına basabilirsiniz.");
 
-        // Takip edeceğimiz coinlerin listesi 
-        $coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'AVAXUSDT', 'XRPUSDT'];
+        // ADA, DOGE ve LINK'in sonuna USDT eklendi
+     $coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'AVAXUSDT', 'XRPUSDT', 'ADAUSDT', 'DOGEUSDT', 'LINKUSDT'];
 
         // Sonsuz döngü: Bot çalıştığı sürece hiç durmadan devam edecek
         while (true) {
-            foreach ($coins as $coin) {
-                try {
-                    // Binance API sinden o anki fiyatı çekiyoruz
-                    $response = Http::get("https://api.binance.com/api/v3/ticker/price?symbol={$coin}");
+        foreach ($coins as $coin) {
+         try {
+             // URL "ticker/24hr" olarak değiştirildi
+           $response = Http::get("https://api.binance.com/api/v3/ticker/24hr?symbol={$coin}");
                     
-                    if ($response->successful()) {
-                        // Fiyatı küsuratlarıyla alıyoruz
-                        $fiyat = round($response->json('price'), 4);
+        if ($response->successful()) {
+         // ticker/24hr adresinde güncel fiyat lastPrice adıyla gelir
+             $fiyat = round($response->json('lastPrice'), 4);
                         
-                        // İsimdeki USDT kısmını siliyoruz ki ekranda sadece BTC, ETH yazsın
-                        $temizCoin = str_replace('USDT', '', $coin); 
+         // İsimdeki usdt kısmını siliyoruz ki ekranda sadece BTC, ETH yazsın
+         $temizCoin = str_replace('USDT', '', $coin); 
                         
-                       
-                        // Oluşturduğumuz Event'in içine coini ve fiyatı koyup tünele fırlatıyoruz
-                        event(new KriptoFiyatGuncellendi($temizCoin, $fiyat));
+             // Binance'den priceChangePercent'i alıyoruz GERÇEK YÜZDE
+                 $yuzde = round($response->json('priceChangePercent'), 2);
                         
-                        // İstersen fırlattığı verileri terminalde görmek için alttaki satırı açabilirsin
+         // Oluşturduğumuz Event'in içine coini, fiyatı ve GERÇEK YÜZDEYİ koyup tünele fırlatıyoruz
+         event(new KriptoFiyatGuncellendi($temizCoin, $fiyat, $yuzde));
                         
                     }
                 } catch (\Exception $e) {
-                    $this->error("Bir hata oluştu, ancak bot çalışmaya devam ediyor.");
+                  $this->error("Bir hata oluştu, ancak bot çalışmaya devam ediyor.");
                 }
             }
             
