@@ -33,6 +33,20 @@
 </head>
 <body class="bg-gray-50 dark:bg-[#0b0e11] text-gray-800 dark:text-gray-200 antialiased font-sans transition-colors duration-300 min-h-screen p-8">
 
+    <style>
+        /*arka plan ışık*/
+    @keyframes nefesAl {
+        0% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.05); }
+        100% { opacity: 0.3; transform: scale(1); }
+    }
+    .ambient-glow {
+        animation: nefesAl 6s infinite ease-in-out;
+    }
+</style>
+<div id="market-mood-glow" class="ambient-glow fixed inset-0 pointer-events-none z-10 transition-colors duration-1000"></div>
+
+
    <div class="max-w-6xl mx-auto">
        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 bg-white dark:bg-[#181a20] p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
     <div class="flex items-center gap-3">
@@ -54,6 +68,25 @@
     </div>
 </div>
         </div>
+
+      
+        <div class="flex flex-wrap gap-2 mb-6 items-center">
+
+    
+    <button onclick="sirala('artan')" class="px-4 py-1.5 text-sm font-bold bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg border border-green-500/20 hover:bg-green-500/20 transition-colors">
+        📈 En Çok Artanlar
+    </button>
+    
+    <button onclick="sirala('dusen')" class="px-4 py-1.5 text-sm font-bold bg-red-500/10 text-red-600 dark:text-red-400 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition-colors">
+        📉 En Çok Düşenler
+    </button>
+    
+    <button onclick="sirala('varsayilan')" class="px-4 py-1.5 text-sm font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+        Varsayılan
+    </button>
+</div>
+
+
 
         <div id="dashboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             </div>
@@ -124,12 +157,28 @@ document.getElementById('ayEvresi').innerText = "Güncel Ay Evresi: " + getMoonP
         </div>
         <span class="opacity-0 group-hover:opacity-100 transition-opacity text-yellow-500 font-medium">Grafik &rarr;</span>
     </div>
+
+
+    <div class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3">
+    <div class="relative w-1/2">
+        <input type="number" id="calc-input-${coin}" oninput="hesapla('${coin}')" class="w-full bg-transparent text-gray-900 dark:text-gray-100 border-b border-gray-300 dark:border-gray-700 pb-1 text-sm focus:border-[#fcd535] focus:ring-0 outline-none transition-colors" placeholder="Miktar...">
+        <span class="absolute right-0 top-0 text-[10px] text-gray-400 font-bold">${coin}</span>
+    </div>
+    
+    <div class="text-right w-1/2">
+        <div class="text-[10px] text-gray-400 font-semibold mb-0.5">Toplam Değer</div>
+        <div id="calc-result-${coin}" class="text-sm font-bold text-gray-900 dark:text-[#0ecb81] transition-colors duration-200">
+            $0.00
+        </div>
+    </div>
+</div>
 </div>`;
-                        } else {
-                            document.getElementById(`price-${coin}`).innerText = `$${data.current_price}`;
-                        }
-                    }
-               } catch (error) {
+        
+} else {
+       document.getElementById(`price-${coin}`).innerText = `$${data.current_price}`;
+       }
+  }
+       } catch (error) {
                   console.error("Dashboard hatası:", error);
                 }
             }
@@ -289,6 +338,83 @@ temaKontrolEt();
 
 <script type="module">
 
+//--------ARKA PLAN IŞIK------
+   window.piyasaDuyguGuncelle = function() {
+    const yuzdeler = Object.values(window.coinYuzdeler);
+    if (yuzdeler.length === 0) return; // Veri yoksa ışık yanmaz
+
+    const toplam = yuzdeler.reduce((acc, val) => acc + val, 0);
+    const ortalama = toplam / yuzdeler.length;
+
+    const glowEl = document.getElementById('market-mood-glow');
+    if (!glowEl) return;
+
+    if (ortalama >= 0) {
+        glowEl.style.background = 'radial-gradient(circle at 50% -20%, rgba(14, 203, 129, 0.40) 0%, transparent 60%)';
+    } else {
+        glowEl.style.background = 'radial-gradient(circle at 50% -20%, rgba(246, 70, 93, 0.40) 0%, transparent 60%)';
+    }
+};
+//--------ARKA PLAN IŞIK SON ------
+
+// -----HESAP MAKİNESİ----------
+    window.hesapla = function(coin) {
+    const miktar = document.getElementById(`calc-input-${coin}`).value;
+    const sonucEl = document.getElementById(`calc-result-${coin}`);
+    
+    // Anlık fiyatı (eğer o ana kadar tünelden geldiyse) oncekiFiyatlar hafızasından alıyoruz
+    const guncelFiyat = window.oncekiFiyatlar && window.oncekiFiyatlar[coin] ? window.oncekiFiyatlar[coin] : 0; 
+    
+    if (miktar && guncelFiyat > 0) {
+        // Miktar ile anlık fiyatı çarpıp virgülden sonra 2 hane alıyoruz
+        const toplam = (parseFloat(miktar) * guncelFiyat).toFixed(2);
+        sonucEl.innerHTML = `$${toplam}`;
+    } else {
+        sonucEl.innerHTML = '$0.00';
+    }
+};
+
+// -----------------SIRALAMA BAŞLANGIÇ----------------
+    // Hangi sıralama modundayız- İlk açılışta varsayılan
+window.siralamaModu = 'varsayilan'; 
+// Coinlerin anlık yüzdelerini burada tutuyoruz
+window.coinYuzdeler = {}; 
+
+// Butona tıklandığında modu değiştiren fonksiyon
+window.sirala = function(mod) {
+    window.siralamaModu = mod;
+    window.siralamaGuncelle();
+};
+
+// Kartların yerini değiştiren fonksiyon
+window.siralamaGuncelle = function() {
+    if (window.siralamaModu === 'varsayilan') {
+        // Herkesi ilk baştaki sırasına döndür (CSS order = 0)
+        Object.keys(window.coinYuzdeler).forEach(coin => {
+            const card = document.getElementById(`card-${coin}`);
+            if (card) card.style.order = 0;
+        });
+        return;
+    }
+
+    // Coinleri yüzdelerine göre sıralayıp bir liste yapıyoruz
+    const siraliCoinler = Object.entries(window.coinYuzdeler).sort((a, b) => {
+        if (window.siralamaModu === 'artan') {
+            return b[1] - a[1]; // Büyükten küçüğe -En Çok Artanlar
+        } else {
+            return a[1] - b[1]; // Küçükten büyüğe -En Çok Düşenler
+        }
+    });
+
+    // Sıralanan listeye göre kartların order değerini güncelliyoruz
+    siraliCoinler.forEach(([coin, yuzde], index) => {
+        const card = document.getElementById(`card-${coin}`);
+        if (card) card.style.order = index + 1; // 1. sıradakine order:1, 2. sıradakine order:2...
+    });
+};
+  //-----------SIRALAMA SON---------------------
+
+
 // ALARM SİSTEMİ----------------------
     window.alarmlar = {};
 //  MİNİMAL BİLDİRİM SİSTEMİ
@@ -323,7 +449,7 @@ window.toastGoster = function(mesaj, tip = 'info') {
     }, 4000);
 };
 
-// 2. MİNİMAL FİYAT SORMA EKRANI (MODAL)
+//  MİNİMAL FİYAT SORMA EKRANI (MODAL)
 window.alarmModalAc = function(coin) {
     const modalHtml = `
     <div id="alarm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -335,9 +461,9 @@ window.alarmModalAc = function(coin) {
          <div class="relative mb-5">
         <input type="number" id="alarm-hedef-fiyat" class="w-full bg-gray-50 dark:bg-[#0b0e11] text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded p-2 text-sm focus:border-[#fcd535] focus:ring-0 outline-none transition-colors" placeholder="Fiyat girin">
          <span class="absolute right-3 top-2.5 text-xs text-gray-400 font-semibold">USDT</span>
-            </div>
+         </div>
             
-            <div class="flex justify-end gap-3 text-sm">
+         <div class="flex justify-end gap-3 text-sm">
         <button onclick="document.getElementById('alarm-modal').remove()" class="px-4 py-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium">İptal</button>
                <button onclick="alarmKaydet('${coin}')" class="px-4 py-1.5 bg-[#fcd535] hover:bg-[#f0c822] text-black font-semibold rounded transition-colors">Onayla</button>
          </div>
@@ -386,32 +512,34 @@ window.alarmCal = function(coin, fiyat) {
 
                 if (priceElement && cardElement) {
 
-                    // --- FİYAT GÜNCELLEME ALANI ---
-                    const yeniFiyat = parseFloat(e.fiyat);
-                    const eskiFiyat = oncekiFiyatlar[e.coin] ?? yeniFiyat;
+              // --- FİYAT GÜNCELLEME ALANI ---
+               const yeniFiyat = parseFloat(e.fiyat);
+              const eskiFiyat = oncekiFiyatlar[e.coin] ?? yeniFiyat;
 
                priceElement.innerHTML = `$${yeniFiyat}`;
                priceElement.classList.remove('text-green-500', 'text-red-500', 'text-gray-900', 'dark:text-white');
                if (yeniFiyat > eskiFiyat) {
-                    priceElement.classList.add('text-green-500');
+               priceElement.classList.add('text-green-500');
                     }
-                    else if (yeniFiyat < eskiFiyat) {
-                        priceElement.classList.add('text-red-500');
-                    } else {
-                        priceElement.classList.add('text-gray-900', 'dark:text-white');
+               else if (yeniFiyat < eskiFiyat) {
+                priceElement.classList.add('text-red-500');
+                } else {
+                priceElement.classList.add('text-gray-900', 'dark:text-white');
                     }
 
-                    //  YÜZDE GÜNCELLEME ALANI 
-                    if (changeElement && e.yuzde !== undefined) {
-                        const yuzde = parseFloat(e.yuzde); 
-                        changeElement.innerHTML = (yuzde >= 0 ? '+' : '') + yuzde.toFixed(2) + '%';
+             //  YÜZDE GÜNCELLEME ALANI 
+                 if (changeElement && e.yuzde !== undefined) {
+                  const yuzde = parseFloat(e.yuzde); 
+                 changeElement.innerHTML = (yuzde >= 0 ? '+' : '') + yuzde.toFixed(2) + '%';
                         
-                        // Pozitifse Yeşil, Negatifse Kırmızı yap
-                        if (yuzde >= 0) {
-                            changeElement.className = "text-sm font-bold text-green-500";
-                        } else {
-                            changeElement.className = "text-sm font-bold text-red-500";
-                        }
+                window.coinYuzdeler[e.coin] = parseFloat(e.yuzde);
+
+               // Pozitifse Yeşil, Negatifse Kırmızı yap
+               if (yuzde >= 0) {
+                    changeElement.className = "text-sm font-bold text-green-500";
+                   } else {
+                  changeElement.className = "text-sm font-bold text-red-500";
+                     }
                     }
 
                     // ALARM KONTROL NOKTASI 
@@ -423,7 +551,33 @@ window.alarmCal = function(coin, fiyat) {
             }
         }
 
+
+        // --- CANLI HESAP MAKİNESİ GÜNCELLEMESİ ---
+  const calcInput = document.getElementById(`calc-input-${e.coin}`);
+  const calcResult = document.getElementById(`calc-result-${e.coin}`);
+
+  // Eğer kullanıcı kutuya bir miktar girdiyse, gelen yeni fiyatla anında çarp ve ekrana bas
+   if (calcInput && calcResult && calcInput.value) {
+    const miktar = parseFloat(calcInput.value);
+    const anlikToplam = (miktar * yeniFiyat).toFixed(2);
+    
+    calcResult.innerHTML = `$${anlikToplam}`;
+    
+    // Sayı güncellendiğinde dikkat çekmesi için yazıyı anlık olarak sarıya boya
+    calcResult.classList.add('text-[#fcd535]', 'scale-105');
+    setTimeout(() => calcResult.classList.remove('text-[#fcd535]', 'scale-105'), 200);
+}
+// ----------------------------------------
+
+
               oncekiFiyatlar[e.coin] = yeniFiyat; }
+
+              //SIRALAMA
+              // sıralama modu açıksa yeni veri geldikçe kartlar kendi kendine yer değiştirir.
+              window.siralamaGuncelle();
+
+              // --- arka plan ışık , canlı piyasa duygsu güncelle
+        window.piyasaDuyguGuncelle();
 
             });
 
