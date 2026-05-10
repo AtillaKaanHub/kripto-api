@@ -34,6 +34,28 @@
 <body class="bg-gray-50 dark:bg-[#0b0e11] text-gray-800 dark:text-gray-200 antialiased font-sans transition-colors duration-300 min-h-screen p-8">
 
     <style>
+          /*BALİNA AKIŞ*/
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-slide-in {
+        animation: slideInLeft 0.4s ease-out forwards;
+    }
+</style>
+
+<div class="fixed bottom-0 left-0 right-0 h-9 bg-[#181a20] border-t border-gray-800 z-50 flex overflow-hidden shadow-[0_-5px_15px_rgba(0,0,0,0.3)]">
+    <div class="bg-[#fcd535] text-black text-[11px] font-extrabold px-3 flex items-center justify-center whitespace-nowrap z-10 uppercase tracking-wider relative">
+         Balina Akışı
+        <div class="absolute right-[-8px] top-0 border-y-[18px] border-y-transparent border-l-[8px] border-l-[#fcd535]"></div>
+    </div>
+    
+    <div id="whale-ticker" class="flex-1 flex items-center gap-4 px-6 overflow-hidden whitespace-nowrap ml-2">
+        <span class="text-gray-600 text-xs italic">Ağ dinleniyor, büyük işlemler bekleniyor...</span>
+    </div>
+</div>
+
+    <style>
         /*arka plan ışık*/
     @keyframes nefesAl {
         0% { opacity: 0.3; transform: scale(1); }
@@ -338,6 +360,40 @@ temaKontrolEt();
 
 <script type="module">
 
+    window.balinaEkle = function(coin, fiyat, miktar, tip) {
+    const ticker = document.getElementById('whale-ticker');
+    if(!ticker) return;
+
+    // Eğer ekranda Ağ dinleniyor yazısı varsa onu temizle
+    if(ticker.innerText.includes('dinleniyor')) ticker.innerHTML = '';
+
+    // Miktarı Dolar cinsine çevirip formatlıyoruz 
+    const dolarDegeri = (fiyat * miktar).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    
+    // Alım ve Satım renklerini/ikonlarını belirliyoruz
+    const renk = tip === 'ALIM' ? 'text-[#0ecb81]' : 'text-[#f6465d]';
+    const ikon = tip === 'ALIM' ? '🟢' : '🔴';
+
+    // Yeni eklenecek yazının HTML yapısı
+    const itemHtml = `
+    <div class="flex items-center gap-1.5 text-[12px] font-medium animate-slide-in flex-shrink-0 bg-gray-800/50 px-2 py-1 rounded">
+        <span>${ikon}</span>
+        <span class="text-gray-200 font-bold ml-1">${coin}</span>
+        <span class="${renk}">${tip}</span>
+        <span class="text-gray-400 border-l border-gray-600 pl-1.5 ml-1">${parseFloat(miktar).toFixed(2)} Adet</span>
+        <span class="text-white font-bold tracking-wide">${dolarDegeri}</span>
+    </div>`;
+
+    // Yeni işlemi bandın soluna başa ekle
+    ticker.insertAdjacentHTML('afterbegin', itemHtml);
+
+    // Bandın içi dolup tarayıcıyı dondurmasın diye, 15 işlemden eskileri arkadan siliyoruz
+    if(ticker.children.length > 15) {
+        ticker.removeChild(ticker.lastChild);
+    }
+};
+
+
 //--------ARKA PLAN IŞIK------
    window.piyasaDuyguGuncelle = function() {
     const yuzdeler = Object.values(window.coinYuzdeler);
@@ -540,6 +596,24 @@ window.alarmCal = function(coin, fiyat) {
                    } else {
                   changeElement.className = "text-sm font-bold text-red-500";
                      }
+
+                     // --- BALİNA AKIŞI SİMÜLASYONU ---
+        // Gelen her fiyat güncellemesinde bir zar atıyoruz 
+        if (Math.random() > 0.85) {
+            
+            // 50.000$ ile 250.000$ arası rastgele bir balina işlem hacmi uyduruyoruz
+            const rastgeleHacimDolar = Math.floor(Math.random() * 200000) + 50000; 
+            
+            // Hacmi anlık fiyata bölerek kaç adet coin alındığını/satıldığını buluyoruz
+            const adet = (rastgeleHacimDolar / yeniFiyat).toFixed(2);
+            
+            // Eğer yeni fiyat eskisinden büyükse ALIM, küçükse SATIŞ gösteriyoruz
+            const tip = yeniFiyat >= eskiFiyat ? 'ALIM' : 'SATIŞ';
+            
+            // Bant fonksiyonunu tetikliyoruz
+            window.balinaEkle(e.coin, yeniFiyat, adet, tip);
+        }
+        // --------------------------------
                     }
 
                     // ALARM KONTROL NOKTASI 
