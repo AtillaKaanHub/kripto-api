@@ -22,6 +22,9 @@
     </script>
  
     <style>
+
+   
+
         /* Canlı yanıp sönen yeşil nokta efekti */
         .live-dot {
             height: 10px; width: 10px; background-color: #22c55e;
@@ -33,6 +36,7 @@
 </head>
 <body class="bg-gray-50 dark:bg-[#0b0e11] text-gray-800 dark:text-gray-200 antialiased font-sans transition-colors duration-300 min-h-screen p-8">
 
+    
     <style>
           /*BALİNA AKIŞ*/
     @keyframes slideInLeft {
@@ -43,6 +47,7 @@
         animation: slideInLeft 0.4s ease-out forwards;
     }
 </style>
+
 
 <div class="fixed bottom-0 left-0 right-0 h-9 bg-[#181a20] border-t border-gray-800 z-50 flex overflow-hidden shadow-[0_-5px_15px_rgba(0,0,0,0.3)]">
     <div class="bg-[#fcd535] text-black text-[11px] font-extrabold px-3 flex items-center justify-center whitespace-nowrap z-10 uppercase tracking-wider relative">
@@ -70,6 +75,7 @@
 
 
    <div class="max-w-6xl mx-auto">
+    
        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 bg-white dark:bg-[#181a20] p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
     <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-yellow-400 rounded flex items-center justify-center font-bold text-gray-900 text-xl">B</div>
@@ -81,6 +87,7 @@
     
     <div class="flex items-center gap-3 w-full md:w-auto">
         <div class="flex flex-1 md:flex-none gap-2">
+            
             <input type="text" id="coinInput" placeholder="Arama (Örn: BTC)" class="w-full bg-gray-50 dark:bg-[#0b0e11] border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 uppercase outline-none focus:border-yellow-400 dark:focus:border-yellow-500 text-sm text-gray-800 dark:text-white transition">
             <button onclick="fiyatGetir()" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition text-gray-700 dark:text-gray-300 whitespace-nowrap">Hızlı Bak</button>
         </div>
@@ -110,21 +117,105 @@
 
 
 
-        <div id="dashboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div class="flex min-h-screen bg-gray-50 dark:bg-[#0b0e11] transition-colors duration-500">
+
+<aside class="hidden lg:flex flex-col w-72 h-screen sticky top-0 bg-white dark:bg-[#0b0e11] border-r border-gray-200 dark:border-gray-800 overflow-hidden relative">
+        
+        <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.02]" style="background-image: radial-gradient(#000 1px, transparent 1px); dark:background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+        <div class="p-8 relative z-10 border-b border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#181a20]/50 backdrop-blur-sm">
+            <div class="text-gray-900 dark:text-[#fcd535] text-4xl font-black tracking-tighter mb-1 italic">
+                CRYPTO<br>TERMINAL
+            </div>
+            <div class="flex items-center gap-2 mb-4">
+                <div class="h-[2px] w-10 bg-gray-900 dark:bg-[#fcd535]"></div>
+                <div class="text-[9px] text-gray-400 dark:text-gray-600 font-mono uppercase tracking-[0.3em]">Advanced node v3.1</div>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 text-xs font-medium leading-relaxed opacity-80">
+                Geleceğin finansal verileri, bugünün hızıyla cebinizde.
+            </p>
+        </div>
+
+        <div class="flex-1 px-6 flex flex-col justify-center gap-6 relative z-10">
+            
+            <div class="group bg-gray-50 dark:bg-[#181a20]/40 p-5 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-[#fcd535]/30 transition-all duration-300">
+                <div class="flex items-center gap-4">
+                    <div class="p-2.5 rounded-lg bg-gray-200 dark:bg-[#fcd535]/10 text-gray-700 dark:text-[#fcd535]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-gray-400 dark:text-gray-500 text-[9px] uppercase tracking-[0.3em] mb-1">Hız</h4>
+                        <p class="text-gray-900 dark:text-white text-base font-extrabold">Milisaniyelik<br>Veri Tüneli</p>
+                    </div>
+                </div>
             </div>
 
-      <div class="mb-6 bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-          <h3 id="gecmisBaslik" class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2 text-center">İşlem Geçmişi</h3>
-            
-            <div class="mb-6 bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
-             <canvas id="fiyatGrafigi" height="80"></canvas>
-           </div>
-           
-            <ul id="gecmisListesi" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <li class="text-gray-500 italic col-span-2 text-center">İncelemek istediğiniz coini aratın veya kartına tıklayın.</li>
-            </ul>
+            <div class="group bg-gray-50 dark:bg-[#181a20]/40 p-5 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-[#0ecb81]/30 transition-all duration-300">
+                <div class="flex items-center gap-4">
+                    <div class="p-2.5 rounded-lg bg-gray-200 dark:bg-[#0ecb81]/10 text-gray-700 dark:text-[#0ecb81]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-gray-400 dark:text-gray-500 text-[9px] uppercase tracking-[0.3em] mb-1">Analiz</h4>
+                        <p class="text-gray-900 dark:text-white text-base font-extrabold">Canlı Akış &<br>Balina Takibi</p>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="group bg-gray-50 dark:bg-[#181a20]/40 p-5 rounded-xl border border-gray-200 dark:border-gray-800 transition-all duration-300 relative overflow-hidden mt-4">
+    <h4 class="text-gray-400 dark:text-gray-500 text-[9px] uppercase tracking-[0.3em] mb-3">Piyasa Duyarlılığı</h4>
+    
+    <div class="flex flex-col items-center justify-center">
+        <div class="relative w-32 h-16 overflow-hidden">
+            <div class="absolute w-32 h-32 border-[12px] border-gray-200 dark:border-gray-800 rounded-full"></div>
+            <div id="index-gauge" class="absolute w-32 h-32 border-[12px] border-transparent border-t-orange-500 border-l-orange-500 rounded-full transition-transform duration-1000 rotate-[45deg]"></div>
+        </div>
+        
+        <div class="text-center mt-2">
+            <span id="index-value" class="text-2xl font-black text-gray-900 dark:text-white leading-none">--</span>
+            <p id="index-label" class="text-[10px] font-bold uppercase tracking-widest text-orange-500 mt-1">Yükleniyor...</p>
         </div>
     </div>
+
+    <div class="text-[8px] font-mono text-gray-500 mt-3 text-center uppercase tracking-tighter">
+        Fear & Greed Index • Daily Update
+    </div>
+</div>
+        </div>
+
+        <div class="p-6 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#181a20]/30 z-10">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="flex h-2.5 w-2.5 rounded-full bg-green-500 dark:bg-[#0ecb81] shadow-sm"></span>
+                <span class="text-gray-500 dark:text-gray-300 text-[10px] font-mono tracking-widest uppercase">System Online</span>
+            </div>
+            <div class="absolute right-4 bottom-24 origin-bottom-right rotate-90 text-gray-200 dark:text-[#1e2329] text-7xl font-black opacity-40 dark:opacity-15 select-none pointer-events-none uppercase">
+                PRO 2026
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-6 lg:p-10 overflow-y-auto">
+        
+        <div id="dashboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+            </div>
+
+        <div class="mb-6 bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl">
+            <h3 id="gecmisBaslik" class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800 pb-3 text-center uppercase tracking-widest">
+                İşlem Geçmişi
+            </h3>
+            
+            <div class="mb-6 bg-gray-50 dark:bg-[#181a20] p-4 rounded-lg border border-gray-200 dark:border-gray-800">
+                <canvas id="fiyatGrafigi" height="80"></canvas>
+            </div>
+            
+            <ul id="gecmisListesi" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <li class="text-gray-500 italic col-span-2 text-center py-4">İncelemek istediğiniz coini aratın veya kartına tıklayın.</li>
+            </ul>
+        </div>
+
+    </main>
+</div>
+    
 
 <script>
         // Panelde takip etmek istediğimiz varsayılan coinler
@@ -359,6 +450,45 @@ temaKontrolEt();
     </script>
 
 <script type="module">
+
+    window.korkuEndeksiGuncelle = async function korkuEndeksiGuncelle() {
+    try {
+        const response = await fetch('https://api.alternative.me/fng/');
+        const data = await response.json();
+        const fng = data.data[0];
+        const deger = parseInt(fng.value);
+        const durum = fng.value_classification;
+
+        const gauge = document.getElementById('index-gauge');
+        const valueEl = document.getElementById('index-value');
+        const labelEl = document.getElementById('index-label');
+
+        if (!gauge || !valueEl || !labelEl) return;
+
+        // Değerleri bas
+        valueEl.innerText = deger;
+        labelEl.innerText = durum;
+
+
+        let renk = "#f6465d"; // Varsayılan Kırmızı
+        if (deger >= 45 && deger <= 55) renk = "#fcd535"; // Sarı
+        if (deger > 55) renk = "#0ecb81"; // Yeşil
+
+        // Göstergeyi döndür (0-100 arası değeri -45 ile 135 derece arasına eşliyoruz)
+        const rotasyon = (deger * 1.8) - 45;
+        gauge.style.transform = `rotate(${rotasyon}deg)`;
+        gauge.style.borderColor = `${renk} ${renk} transparent transparent`;
+        labelEl.style.color = renk;
+
+    } catch (error) {
+        console.error("Endeks verisi alınamadı:", error);
+    }
+}
+
+// Sayfa açıldığında çalıştır
+korkuEndeksiGuncelle();
+// Her 1 saatte bir güncelle 
+setInterval(korkuEndeksiGuncelle, 3600000);
 
     window.balinaEkle = function(coin, fiyat, miktar, tip) {
     const ticker = document.getElementById('whale-ticker');
@@ -644,11 +774,11 @@ window.alarmCal = function(coin, fiyat) {
 // ----------------------------------------
 
 
-              oncekiFiyatlar[e.coin] = yeniFiyat; }
+     oncekiFiyatlar[e.coin] = yeniFiyat; }
 
-              //SIRALAMA
-              // sıralama modu açıksa yeni veri geldikçe kartlar kendi kendine yer değiştirir.
-              window.siralamaGuncelle();
+     //SIRALAMA
+     // sıralama modu açıksa yeni veri geldikçe kartlar kendi kendine yer değiştirir.
+     window.siralamaGuncelle();
 
               // --- arka plan ışık , canlı piyasa duygsu güncelle
         window.piyasaDuyguGuncelle();
