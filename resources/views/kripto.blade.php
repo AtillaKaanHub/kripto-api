@@ -23,8 +23,7 @@
  
     <style>
 
-   
-
+        
         /* Canlı yanıp sönen yeşil nokta efekti */
         .live-dot {
             height: 10px; width: 10px; background-color: #22c55e;
@@ -215,7 +214,28 @@
 
     </main>
 </div>
+
+
+    <div class="mt-8 mb-6 w-full overflow-hidden">
+    <div class="flex items-center justify-between mb-4 px-2">
+        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            Canlı Piyasa Haberleri
+        </h3>
+        <span class="text-[10px] text-gray-400">Kaynak: CoinTelegraph</span>
+    </div>
     
+    <div id="news-container" class="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar">
+        <div class="min-w-[300px] h-20 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse"></div>
+        <div class="min-w-[300px] h-20 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse"></div>
+        <div class="min-w-[300px] h-20 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse"></div>
+    </div>
+</div>
+
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
 
 <script>
         // Panelde takip etmek istediğimiz varsayılan coinler
@@ -445,7 +465,60 @@ function temaKontrolEt() {
 // Sayfa yüklenirken hemen temayı kontrol et
 temaKontrolEt();
 
+async function fetchMarketNews() {
+    try {
+        // HİLE: CoinTelegraph'ın RSS akışını rss2json servisi ile API gibi okuyoruz!
+        // Hem şifre istemez, hem kotası çok yüksektir, hem de asla 401 hatası vermez.
+        const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fcointelegraph.com%2Frss');
+        const result = await response.json();
+        
+        // Eğer veriler sorunsuz geldiyse (status: 'ok')
+        if (result && result.status === 'ok' && result.items) {
+            // İlk 10 haberi alıyoruz
+            const newsList = result.items.slice(0, 10);
+            const container = document.getElementById('news-container');
+            
+            container.innerHTML = newsList.map(news => {
+                // RSS'ten gelen tarihi (pubDate) düzeltip saat/dakika formatına çeviriyoruz
+                const newsDate = new Date(news.pubDate);
+                const timeString = newsDate.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+                
+                // Eğer haberin resmi yoksa diye yedek bir görsel (placeholder) atıyoruz
+                const imgUrl = news.thumbnail || 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80';
 
+                return `
+                    <a href="${news.link}" target="_blank" rel="noopener noreferrer" class="min-w-[300px] max-w-[300px] bg-white dark:bg-[#1e2329] p-3 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:border-blue-500 transition-colors snap-center group flex gap-3 cursor-pointer">
+                        <img src="${imgUrl}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0" alt="News">
+                        
+                        <div class="flex flex-col justify-between overflow-hidden w-full">
+                            <h4 class="text-[11px] font-bold text-gray-800 dark:text-gray-200 line-clamp-2 group-hover:text-blue-500 transition-colors" title="${news.title}">
+                                ${news.title}
+                            </h4>
+                            <div class="flex items-center justify-between mt-1">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase">CoinTelegraph</span>
+                                <span class="text-[9px] text-gray-400">${timeString}</span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        } else {
+            throw new Error("RSS verisi okunamadı.");
+        }
+    } catch (error) {
+        console.error("Haberler çekilirken hata oluştu:", error.message);
+        document.getElementById('news-container').innerHTML = `
+            <div class="text-sm text-red-500 italic px-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Haber akışı geçici olarak duraklatıldı.
+            </div>
+        `;
+    }
+}
+
+// Sayfa yüklendiğinde ve her 5 dakikada bir çalıştır
+fetchMarketNews();
+setInterval(fetchMarketNews, 300000);
 
     </script>
 
@@ -789,7 +862,9 @@ window.alarmCal = function(coin, fiyat) {
             console.error("Echo yüklenmedi!");
         }
     }, 1000);
+    
 </script>
+
 
 </body>
 </html>
